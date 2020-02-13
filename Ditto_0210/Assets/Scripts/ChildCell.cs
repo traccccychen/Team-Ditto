@@ -1,45 +1,60 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
-public class ChildCell : MonoBehaviour
+public class ChildCell : Cell
 {
-    // Start is called before the first frame update
     public float speed = 1.5f;
-    void Start()
-    {
-        
-    }
+    float JoyStickB;
+    Transform Destination;
+    public string joystick2;
 
     // Update is called once per frame
+    void Start() 
+    {
+        if (joystick2 == null)
+        {
+            joystick2 = "joystick 1";
+        }
+    }
     void Update()
     {
-    //   if (Input.GetKey(KeyCode.A))
-    //  {
-    //      transform.position += Vector3.left * speed * Time.deltaTime;
-    //  }
-    //  if (Input.GetKey(KeyCode.D))
-    //  {
-    //      transform.position += Vector3.right * speed * Time.deltaTime;
-    //  }
-    //  if (Input.GetKey(KeyCode.W))
-    //  {
-    //      transform.position += Vector3.up * speed * Time.deltaTime;
-    //  }
-    //  if (Input.GetKey(KeyCode.S))
-    //  {
-    //      transform.position += Vector3.down * speed * Time.deltaTime;
-    //  }
-    // }
-    Rigidbody rb = GetComponent<Rigidbody>();
-         if (Input.GetKey(KeyCode.A))
-             rb.AddForce(Vector3.left);
-         if (Input.GetKey(KeyCode.D))
-             rb.AddForce(Vector3.right);
-         if (Input.GetKey(KeyCode.W))
-             rb.AddForce(Vector3.up);
-         if (Input.GetKey(KeyCode.S))
-             rb.AddForce(Vector3.down);
-            // Debug.Log(rb.velocity);
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (Input.GetKeyDown(joystick2 + " button 0") && isGrounded)
+        {
+            isGrounded = false;
+            rb.useGravity = false;
+            StartCoroutine(Jump());
+        }
+        
+        JoyStickB = Input.GetAxisRaw(joystick2);
+         
+        if (Input.GetAxisRaw(joystick2)!=0 && FinishJump)
+        {
+            LazyFollow(this.transform.position + Vector3.right * Time.deltaTime* JoyStickB * 40);
+        }
+        //change scale
+        Stretching();
+
+        if (Input.GetKeyDown(joystick2 + " button 2"))
+        {
+            Split();
+        }     
     }
+    
+    private void OnCollisionStay(Collision other) 
+    {
+        if (other.gameObject.tag == "Cell")
+        {
+            Debug.Log("Child eat collide");
+            if (Input.GetKey(joystick2 + " button 3"))
+            {
+                Debug.Log("button 3");
+                Merge(other.gameObject);
+            }
+        }
+    }
+       
+    
 }
