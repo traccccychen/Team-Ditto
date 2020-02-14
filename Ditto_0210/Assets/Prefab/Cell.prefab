@@ -60,7 +60,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: e346c70c3044830478484df8e8c79428, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -102,14 +102,14 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4175602495196360878}
   serializedVersion: 2
-  m_Mass: 2
-  m_Drag: 0.5
+  m_Mass: 10
+  m_Drag: 0.2
   m_AngularDrag: 0.5
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 112
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
 --- !u!114 &4175602495196360877
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123,7 +123,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CellObject: {fileID: 4175602495196360878}
+  OriginalScale: {x: 0, y: 0, z: 0}
   rb: {fileID: 0}
-  joystick: 
+  joystick: joystick 1
   isGrounded: 1
   FinishJump: 1
+  JumpPower: 1800
+  JumpHeight: 1.5
+  JumpDistance: 1
+  MoveSpeed: 3
+  CellLevel: 1

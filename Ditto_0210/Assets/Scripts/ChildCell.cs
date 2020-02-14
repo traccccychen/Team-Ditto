@@ -20,40 +20,12 @@ public class ChildCell : Cell
     }
     void Update()
     {
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (Input.GetKeyDown(joystick2 + " button 0") && isGrounded)
-        {
-            isGrounded = false;
-            rb.useGravity = false;
-            StartCoroutine(Jump());
-        }
-        
-        JoyStickB = Input.GetAxisRaw(joystick2);
          
-        if (Input.GetAxisRaw(joystick2)!=0 && FinishJump)
-        {
-            LazyFollow(this.transform.position + Vector3.right * Time.deltaTime* JoyStickB * 40);
-        }
-        //change scale
-        Stretching();
-
-        if (Input.GetKeyDown(joystick2 + " button 2"))
-        {
-            Split();
-        }     
     }
     
     private void OnCollisionStay(Collision other) 
     {
-        if (other.gameObject.tag == "Cell")
-        {
-            Debug.Log("Child eat collide");
-            if (Input.GetKey(joystick2 + " button 3"))
-            {
-                Debug.Log("button 3");
-                Merge(other.gameObject);
-            }
-        }
+        
     }
        
     
