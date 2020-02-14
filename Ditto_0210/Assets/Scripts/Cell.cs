@@ -8,7 +8,7 @@ public class Cell : MonoBehaviour
     
     
     public GameObject CellObject;
-    Vector3 OriginalScale;
+    public Vector3 OriginalScale;
     Vector3 previous;
     public Rigidbody rb;
     float JoyStickA;
@@ -17,6 +17,13 @@ public class Cell : MonoBehaviour
     public bool isGrounded = true;
     public bool FinishJump = true;
     protected int NumOfPlayer = 1;
+    public int JumpPower = 3500;
+    public float JumpHeight = 1.5f;
+    public float JumpDistance = 1;
+    public float MoveSpeed = 5;
+    public int CellLevel = 1;
+    
+    
     
     // Start is called before the first frame update
     void Start()
@@ -31,7 +38,8 @@ public class Cell : MonoBehaviour
     void Update()
     {
         JoyStickA = Input.GetAxisRaw(joystick);
-        if (Input.GetAxisRaw(joystick)!= 0 && FinishJump)
+        
+        if (Input.GetAxisRaw(joystick)!= 0 && isGrounded)
         {
             LazyFollow(this.transform.position + Vector3.right * Time.deltaTime*JoyStickA*40);
         }
@@ -45,15 +53,31 @@ public class Cell : MonoBehaviour
         //change scale
         Stretching();
         
-
-        if (Input.GetKeyDown(joystick + " button 0") && isGrounded)
+    
+        if (Input.GetKeyDown(joystick + " button 0") )
         {
-            isGrounded = false;
-            FinishJump = false;
-            rb.useGravity = false;
-            StartCoroutine(Jump());
+            IsGrounded();
+            if (isGrounded)
+            {
+                isGrounded = false;
+                //FinishJump = false;
+                //rb.useGravity = false;
+            
+                StartCoroutine(Jump(Vector2.one));
+            }
+            
         }
         
+        
+    }
+    void IsGrounded()
+    {
+        if (Physics.Raycast(transform.position, -Vector3.up, this.transform.localScale.y/2 + 0.05f))
+        {
+            isGrounded = true;
+            Debug.Log("Ground");
+        }
+    
     }
 
     public void Stretching()
@@ -75,25 +99,28 @@ public class Cell : MonoBehaviour
 
     public void LazyFollow(Vector3 Destination)
     {
-        this.transform.DOMoveX(Destination.x,1f);
-        Vector3 Direction = (Destination - this.transform.position).normalized;
-        Direction.z =0;
-        Quaternion XLookRotation = Quaternion.LookRotation(Destination, transform.up) * Quaternion.Euler(new Vector3(0, 90, 0));
+        //this.transform.DOMoveX(Destination.x,1f);
+        // Vector3 Direction = (Destination - this.transform.position).normalized;
+        // Direction.z =0;
+        // Quaternion XLookRotation = Quaternion.LookRotation(Destination, transform.up) * Quaternion.Euler(new Vector3(0, 90, 0));
+        //rb.AddForce(Vector3.right *JoyStickA*150);
+        transform.Translate(Vector3.right*Time.deltaTime*JoyStickA*MoveSpeed);
             
     }
 
-    public IEnumerator Jump()
+    public IEnumerator Jump(Vector3 direction)
     {
-        this.transform.DOJump(this.transform.position+new Vector3 (Input.GetAxisRaw(joystick)*3,0,0),2*this.transform.localScale.x,1,1f,false).OnComplete
-        (
-            ()=> 
-            {
-                rb.useGravity = true;
-                isGrounded = true;
-            }
-        );
-        yield return new WaitForSeconds(0.6f);
-        FinishJump = true;
+        
+        if (Input.GetAxisRaw(joystick) > 0)
+            direction = new Vector3(JumpDistance,JumpHeight,0);
+        else if (Input.GetAxisRaw(joystick) < 0)
+            direction = new Vector3(-JumpDistance,JumpHeight,0);
+        else 
+            direction = new Vector3(0,JumpHeight,0);
+        Debug.Log("Jump");
+        rb.AddForce(direction *JumpPower);
+        yield return new WaitForSeconds(0.1f);
+        //FinishJump = true;
     }
 
     protected void Split()
@@ -103,14 +130,19 @@ public class Cell : MonoBehaviour
             CellManager.instance.PlayerNumber ++;
             GameObject newCell = Instantiate(CellObject, this.transform.position,this.transform.rotation);
             newCell.GetComponent<Cell>().joystick = "joystick " + CellManager.instance.PlayerNumber.ToString();
-            this.transform.localScale = OriginalScale/1.3f;
+            this.transform.localScale = OriginalScale*0.8f;
             OriginalScale = this.transform.localScale;
-            newCell.transform.localScale = this.transform.localScale*0.8f;
+            newCell.transform.localScale = OriginalScale*0.8f;
+            newCell.GetComponent<Cell>().OriginalScale = this.transform.localScale;
             newCell.GetComponent<Rigidbody>().useGravity = true;
+            //this.GetComponent<Rigidbody>().mass = OriginalScale.z * CellManager.instance.DefaultMass;
+            //newCell.GetComponent<Rigidbody>().mass = newCell.transform.localScale.z * CellManager.instance.DefaultMass;
+            MoveSpeed = CellManager.instance.DefaultSpeed/(OriginalScale.z+CellManager.instance.SpeedDamp);
+            newCell.GetComponent<Cell>().MoveSpeed = CellManager.instance.DefaultSpeed/(newCell.transform.localScale.z+CellManager.instance.SpeedDamp);
         }
     }
 
-    private void OnCollisionStay(Collision other) 
+    private void OnCollisionEnter(Collision other) 
     {
         if (other.gameObject.tag == "Cell")
         {
@@ -119,16 +151,35 @@ public class Cell : MonoBehaviour
                 Merge(other.gameObject);
             }
         }
+        IsGrounded();
+        
     }
+
+    
+
     protected void Merge(GameObject EatenCell)
     {
         if (this.transform.localScale.x > EatenCell.transform.localScale.x)   
         { 
             CellManager.instance.PlayerNumber --;
-            Destroy(EatenCell);
-            this.transform.localScale = OriginalScale*1.3f;
+            float AddedSize = OriginalScale.z/1.6f + EatenCell.transform.localScale.z/1.6f;
+            this.transform.localScale = new Vector3(AddedSize,AddedSize,AddedSize);
             OriginalScale = this.transform.localScale;
+            //this.GetComponent<Rigidbody>().mass = OriginalScale.z * CellManager.instance.DefaultMass;
+            MoveSpeed = CellManager.instance.DefaultSpeed/(OriginalScale.z+CellManager.instance.SpeedDamp);
+            Destroy(EatenCell);
         }
+        else if (this.gameObject.tag == "MotherCell")
+        {
+            CellManager.instance.PlayerNumber --;
+            float AddedSize = OriginalScale.z/1.6f + EatenCell.transform.localScale.z/1.6f;
+            this.transform.localScale = new Vector3(AddedSize,AddedSize,AddedSize);
+            OriginalScale = this.transform.localScale;
+            //this.GetComponent<Rigidbody>().mass = OriginalScale.z * CellManager.instance.DefaultMass;
+            MoveSpeed = CellManager.instance.DefaultSpeed/(OriginalScale.z+CellManager.instance.SpeedDamp);
+            Destroy(EatenCell);
+        }
+        
     }
 
 

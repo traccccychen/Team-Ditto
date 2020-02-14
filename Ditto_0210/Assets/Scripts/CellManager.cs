@@ -6,6 +6,9 @@ public class CellManager : MonoBehaviour
 {
     public static CellManager instance = null;
     public int PlayerNumber =1;
+    public float DefaultMass = 10;
+    public float DefaultSpeed = 3;
+    public float SpeedDamp = 0.3f;
 
     void Awake() {
         {
