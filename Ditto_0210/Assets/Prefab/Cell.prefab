@@ -104,11 +104,11 @@ Rigidbody:
   serializedVersion: 2
   m_Mass: 10
   m_Drag: 0.2
-  m_AngularDrag: 0.5
+  m_AngularDrag: 1
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 1
-  m_Constraints: 112
+  m_Constraints: 56
   m_CollisionDetection: 0
 --- !u!114 &4175602495196360877
 MonoBehaviour:
@@ -128,7 +128,7 @@ MonoBehaviour:
   joystick: joystick 1
   isGrounded: 1
   FinishJump: 1
-  JumpPower: 1800
+  JumpPower: 2000
   JumpHeight: 1.5
   JumpDistance: 1
   MoveSpeed: 3

@@ -43,6 +43,17 @@ public class Cell : MonoBehaviour
         {
             LazyFollow(this.transform.position + Vector3.right * Time.deltaTime*JoyStickA*40);
         }
+
+        //Key input for testing
+        if (Input.GetKey("a") && isGrounded)
+        {
+            transform.Translate(Vector3.left*Time.deltaTime*MoveSpeed,Space.World);
+        }
+        if (Input.GetKey("d") && isGrounded)
+        {
+            transform.Translate(Vector3.right*Time.deltaTime*MoveSpeed,Space.World);
+        }
+       
         
         //split
         if (Input.GetKeyDown(joystick + " button 2"))
@@ -54,7 +65,7 @@ public class Cell : MonoBehaviour
         Stretching();
         
     
-        if (Input.GetKeyDown(joystick + " button 0") )
+        if (Input.GetKeyDown(joystick + " button 0")  || Input.GetKeyDown("space"))
         {
             IsGrounded();
             if (isGrounded)
@@ -104,7 +115,7 @@ public class Cell : MonoBehaviour
         // Direction.z =0;
         // Quaternion XLookRotation = Quaternion.LookRotation(Destination, transform.up) * Quaternion.Euler(new Vector3(0, 90, 0));
         //rb.AddForce(Vector3.right *JoyStickA*150);
-        transform.Translate(Vector3.right*Time.deltaTime*JoyStickA*MoveSpeed);
+        transform.Translate(Vector3.right*Time.deltaTime*JoyStickA*MoveSpeed,Space.World);
             
     }
 
@@ -132,7 +143,7 @@ public class Cell : MonoBehaviour
             newCell.GetComponent<Cell>().joystick = "joystick " + CellManager.instance.PlayerNumber.ToString();
             this.transform.localScale = OriginalScale*0.8f;
             OriginalScale = this.transform.localScale;
-            newCell.transform.localScale = OriginalScale*0.8f;
+            newCell.transform.localScale = OriginalScale;
             newCell.GetComponent<Cell>().OriginalScale = this.transform.localScale;
             newCell.GetComponent<Rigidbody>().useGravity = true;
             //this.GetComponent<Rigidbody>().mass = OriginalScale.z * CellManager.instance.DefaultMass;
@@ -168,6 +179,7 @@ public class Cell : MonoBehaviour
             //this.GetComponent<Rigidbody>().mass = OriginalScale.z * CellManager.instance.DefaultMass;
             MoveSpeed = CellManager.instance.DefaultSpeed/(OriginalScale.z+CellManager.instance.SpeedDamp);
             Destroy(EatenCell);
+            this.transform.DOPunchScale(this.transform.localScale*0.3f,0.4f,10,0.5f);
         }
         else if (this.gameObject.tag == "MotherCell")
         {
@@ -178,6 +190,7 @@ public class Cell : MonoBehaviour
             //this.GetComponent<Rigidbody>().mass = OriginalScale.z * CellManager.instance.DefaultMass;
             MoveSpeed = CellManager.instance.DefaultSpeed/(OriginalScale.z+CellManager.instance.SpeedDamp);
             Destroy(EatenCell);
+            this.transform.DOPunchScale(this.transform.localScale*0.3f,0.4f,10,0.5f);
         }
         
     }
